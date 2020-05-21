@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="None">
+  
+  
+  <link rel="shortcut icon" href="img/favicon.ico">
+  <title>LTLf2DFA</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700" />
+
+  <link rel="stylesheet" href="css/theme.css" />
+  <link rel="stylesheet" href="css/theme_extra.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" />
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Home";
+    var mkdocs_page_input_path = "index.md";
+    var mkdocs_page_url = null;
+  </script>
+  
+  <script src="js/jquery-2.1.1.min.js" defer></script>
+  <script src="js/modernizr-2.8.3.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+        <a href="." class="icon icon-home"> LTLf2DFA</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="./search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+                <ul class="current">
+                    <li class="toctree-l1 current"><a class="reference internal current" href=".">Home</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#prerequisites">Prerequisites</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#install">Install</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#how-to-use">How To Use</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#features">Features</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#tests">Tests</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#docs">Docs</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#license">License</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#author">Author</a>
+    </li>
+    </ul>
+                    </li>
+                </ul>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="authors/">Credits</a>
+                    </li>
+                </ul>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="contributing/">How to contribute</a>
+                    </li>
+                </ul>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="grammars/">Grammars</a>
+                    </li>
+                </ul>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="references/">References</a>
+                    </li>
+                </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href=".">LTLf2DFA</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".">Docs</a> &raquo;</li>
+    
+      
+    
+    <li>Home</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="ltlf2dfa">LTL<sub>f</sub>2DFA</h1>
+<p><a href="https://pypi.python.org/pypi/ltlf2dfa"><img alt="" src="https://img.shields.io/pypi/v/ltlf2dfa.svg" /></a>
+<a href="https://pypi.python.org/pypi/ltlf2dfa"><img alt="" src="https://img.shields.io/pypi/pyversions/ltlf2dfa.svg" /></a>
+<a href="https://github.com/whitemech/LTLf2DFA/actions?query=workflow%3A%22LTLf2DFA+CI+pipeline.%22"><img alt="LTLf2DFA CI pipeline" src="https://github.com/whitemech/LTLf2DFA/workflows/LTLf2DFA%20CI%20pipeline./badge.svg" /></a>
+<a href="https://www.mkdocs.org/"><img alt="" src="https://img.shields.io/badge/docs-mkdocs-9cf" /></a>
+<a href="https://img.shields.io/badge/status-development-orange.svg"><img alt="" src="https://img.shields.io/badge/status-development-orange.svg" /></a>
+<a href="https://codecov.io/gh/whitemech/LTLf2DFA"><img alt="codecov" src="https://codecov.io/gh/whitemech/LTLf2DFA/branch/master/graph/badge.svg" /></a>
+<a href="https://img.shields.io/badge/flake8-checked-blueviolet"><img alt="" src="https://img.shields.io/badge/flake8-checked-blueviolet" /></a>
+<a href="https://img.shields.io/badge/mypy-checked-blue"><img alt="" src="https://img.shields.io/badge/mypy-checked-blue" /></a>
+<a href="https://img.shields.io/badge/license-LGPLv3%2B-blue"><img alt="" src="https://img.shields.io/badge/license-LGPLv3%2B-blue" /></a></p>
+<p>LTL<sub>f</sub>2DFA is a tool that transforms an LTL<sub>f</sub> or a PLTL<sub>f</sub> formula into a minimal 
+Deterministic Finite state Automaton (DFA) using <a href="http://www.brics.dk/mona/">MONA</a>.</p>
+<p>It is also available online at <a href="http://ltlf2dfa.diag.uniroma1.it">ltlf2dfa.diag.uniroma1.it</a>.</p>
+<h2 id="prerequisites">Prerequisites</h2>
+<p>This tool uses MONA for the generation of the DFA. Hence, you should first install MONA with all its dependencies on 
+your system following the instructions <a href="http://www.brics.dk/mona/download.html">here</a>.</p>
+<p>This tool is also based on the following libraries:</p>
+<ul>
+<li><a href="https://pypi.org/project/lark-parser/">lark-parser 0.8.5</a></li>
+<li><a href="https://pypi.org/project/sympy/">sympy 1.5.1</a></li>
+</ul>
+<p>They are automatically added while installing LTL<sub>f</sub>2DFA.</p>
+<h2 id="install">Install</h2>
+<ul>
+<li>from <a href="https://pypi.org/project/ltlf2dfa/">PyPI</a>:</li>
+</ul>
+<pre><code>pip install ltlf2dfa
+</code></pre>
+
+<ul>
+<li>or, from source (<code>master</code> branch):</li>
+</ul>
+<pre><code>pip install git+https://github.com/whitemech/LTLf2DFA.git
+</code></pre>
+
+<ul>
+<li>or, clone the repository and install:</li>
+</ul>
+<pre><code>git clone htts://github.com/whitemech/LTLf2DFA.git
+cd ltlf2dfa
+pip install .
+</code></pre>
+
+<h2 id="how-to-use">How To Use</h2>
+<ul>
+<li>Parse an LTL<sub>f</sub> formula:</li>
+</ul>
+<pre><code class="python">from ltlf2dfa.parser.ltlf import LTLfParser
+
+parser = LTLfParser()
+formula_str = &quot;G(a -&gt; X b)&quot;
+formula = parser(formula_str)       # returns an LTLfFormula
+
+print(formula)                      # prints &quot;G(a -&gt; X (b))&quot;
+</code></pre>
+
+<ul>
+<li>Or, parse a PLTL<sub>f</sub> formula:</li>
+</ul>
+<pre><code class="python">from ltlf2dfa.parser.pltlf import PLTLfParser
+
+parser = PLTLfParser()
+formula_str = &quot;H(a -&gt; Y b)&quot;
+formula = parser(formula_str)       # returns a PLTLfFormula
+
+print(formula)                      # prints &quot;H(a -&gt; Y (b))&quot;
+</code></pre>
+
+<ul>
+<li>Translate a formula to the corresponding DFA automaton:</li>
+</ul>
+<pre><code class="python">dfa = formula.to_dfa()
+print(dfa)                          # prints the DFA in DOT format
+</code></pre>
+
+<h2 id="features">Features</h2>
+<ul>
+<li>
+<p>Syntax and parsing support for the following formal languages:</p>
+<ul>
+<li>Propositional Logic;</li>
+<li>Linear Temporal Logic on Finite Traces;</li>
+<li>Pure-Past Linear Temporal Logic on Finite Traces.</li>
+</ul>
+</li>
+<li>
+<p>Conversion from LTL<sub>f</sub>/PLTL<sub>f</sub> formula to MONA (First-order Logic)</p>
+</li>
+</ul>
+<p><strong>NOTE</strong>: LTL<sub>f</sub>2DFA accepts either LTL<sub>f</sub> formulas or PLTL<sub>f</sub> formulas, i.e., formulas that 
+have only past, only future or none operators.</p>
+<h2 id="tests">Tests</h2>
+<p>To run tests: <code>tox</code></p>
+<p>To run only the code tests: <code>tox -e py37</code></p>
+<p>To run only the code style checks: <code>tox -e flake8</code></p>
+<h2 id="docs">Docs</h2>
+<p>To build the docs: <code>mkdocs build</code></p>
+<p>To view documentation in a browser: <code>mkdocs serve</code>
+and then go to <a href="http://localhost:8000">http://localhost:8000</a></p>
+<h2 id="license">License</h2>
+<p>LTL<sub>f</sub>2DFA is released under the GNU Lesser General Public License v3.0 or later (LGPLv3+).</p>
+<p>Copyright 2018-2020 WhiteMech</p>
+<h2 id="author">Author</h2>
+<p><a href="https://francescofuggitti.github.io/">Francesco Fuggitti</a></p>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="authors/" class="btn btn-neutral float-right" title="Credits">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+      
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="versions">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+      
+        <span style="margin-left: 15px"><a href="authors/" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+    <script>var base_url = '.';</script>
+    <script src="js/theme.js" defer></script>
+      <script src="search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>
+
+<!--
+MkDocs version : 1.1.2
+Build Date UTC : 2020-05-21 11:40:44.834792+00:00
+-->
