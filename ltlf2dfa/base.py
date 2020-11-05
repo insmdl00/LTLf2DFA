@@ -185,8 +185,6 @@ class MonaSEQ:
 
     header = "m2l-str"
     vars: Set[str] = set()
-    #exvars1: Set[str] = set()
-    #exvars2: Set[str] = set()
 
     def __init__(self, f1: Formula, f2: Formula):
         """Initialize.
@@ -212,7 +210,7 @@ class MonaSEQ:
         v1 = set([v.upper() for v in self.f1.find_labels()])
         v2 = set([v.upper() for v in self.f2.find_labels()])
         if v1.issubset(v2) and v2.issubset(v1): # strong equivalence on the same signature
-            monaOutput = "#{0} <-> {1} in THTf;\n{2};\nvar2 {3};\n  ~({4} => ((({5}) <=> ({6})) & (({7}) <=>({8}))));\n".format(
+            monaOutput = "#{0} <-> {1} in THTf;\n{2};\nvar2 {3};\n  ~(({4}) => ((({5}) <=> ({6})) & (({7}) <=>({8}))));\n".format(
                     self.f1,
                     self.f2, 
                     self.header,

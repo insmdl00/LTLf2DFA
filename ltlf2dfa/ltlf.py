@@ -643,7 +643,7 @@ class LTLfRelease(LTLfBinaryOperator):
         ex_var = new_var(all_var)
         f1 = self.formulas[0].to_mona(v=ex_var)
         f2 = self.formulas[1].to_mona(v=all_var)
-        return "(all1 {0}: {1}<={0}&{0}<=max($) => ({2} | (ex1: {3} {1} <= {3} & {3} <= {0} & {4})))".format(all_var,v,f2,ex_var,f1)
+        return "(all1 {0}: ({1}<={0}&{0}<=max($)) => (({2}) | (ex1 {3}: {1} <= {3} & {3} < {0} & {4})))".format(all_var,v,f2,ex_var,f1)
 
     def to_mona_s(self,v="0") -> str:
         """Return the MONA encoding of an LTLf Release formula."""
@@ -651,7 +651,7 @@ class LTLfRelease(LTLfBinaryOperator):
         ex_var = new_var(all_var)
         f1 = self.formulas[0].to_mona_s(v=ex_var)
         f2 = self.formulas[1].to_mona_s(v=all_var)
-        return "(all1 {0}: {1}<={0}&{0}<=max($) => ({2} | (ex1: {3} {1} <= {3} & {3} <= {0} & {4})))".format(all_var,v,f2,ex_var,f1)
+        return "(all1 {0}: ({1}<={0}&{0}<=max($)) => ({2} | (ex1 {3}: {1} <= {3} & {3} < {0} & {4})))".format(all_var,v,f2,ex_var,f1)
 
 
     def _to_tlp(self,v,df):
