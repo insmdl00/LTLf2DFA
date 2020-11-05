@@ -806,6 +806,19 @@ class LTLfLast(LTLfFormula):
     def pv(self):
         return set()
 
+    def to_mona(self, v="0") -> str:
+        """Return the MONA encoding of an LTLf atomic formula."""
+        if v != "0":
+            return "(0 == max($))"
+        else:
+            return "({} in max($))".format(v)
+
+    def to_mona_s(self,v="0") -> str:
+        if v != "0":
+            return "(0 == max($))"
+        else:
+            return "({} in max($))".format(v)
+
 class LTLfEnd(LTLfFormula):
     """Class for the LTLf End formula."""
 
