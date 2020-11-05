@@ -136,6 +136,156 @@ class MonaProgram:
             )
 
 
+
+class MonaSM:
+    """Implements a MONA SM program."""
+
+    header = "m2l-str"
+    vars: Set[str] = set()
+
+    def __init__(self, f: Formula):
+        """Initialize.
+
+        :param f: formula to encode.
+        :param i: instant of evaluation in the trace.
+        """
+        self.formula = f
+        self._set_vars()
+
+    def _set_vars(self):
+        """Set MONA vars."""
+        self.vars = set([v.upper() for v in self.formula.find_labels()])
+
+    def __repr__(self):
+        """Nice representation."""
+        return str(self)
+
+    def mona_program(self) -> str:
+        """Construct the MONA program."""
+        if self.vars:
+
+            return "#{0};\n{1};\nvar2 {2};\n{3} & ~(ex2 {4}: ({5} & ({6})&({7})));\n".format(
+                str(self.formula),
+                self.header,
+                ", ".join(self.vars),
+                self.formula.to_mona(),
+                ",".join(["{0}_p".format(v) for v in self.vars]),
+                "&".join(["{0}_p sub {0}".format(v) for v in self.vars]),
+                "|".join(["{0}_p ~= {0}".format(v) for v in self.vars]),
+                self.formula.to_mona_s()
+            )
+        else:
+            return "#{};\n{};\n{};\n".format(
+                str(self.formula), self.header, self.formula.to_mona()
+            )
+
+
+class MonaSEQ:
+    """Implements a MONA SM program."""
+
+    header = "m2l-str"
+    vars: Set[str] = set()
+    #exvars1: Set[str] = set()
+    #exvars2: Set[str] = set()
+
+    def __init__(self, f1: Formula, f2: Formula):
+        """Initialize.
+
+        :param f: formula to encode.
+        :param i: instant of evaluation in the trace.
+        """
+        self.f1,self.f2 = f1,f2
+        self.vars = set([v.upper() for v in f1.find_labels()]).union(set([v.upper() for v in f2.find_labels()]))
+
+
+    def _set_vars(self):
+        """Set MONA vars."""
+        self.vars = set([v.upper() for v in self.f.find_labels()])
+
+    def __repr__(self):
+        """Nice representation."""
+        return "({})<->({})".formatstr(self)
+
+    def mona_program(self) -> str:
+        """Construct the MONA program."""
+        monaOutput = None
+        v1 = set([v.upper() for v in self.f1.find_labels()])
+        v2 = set([v.upper() for v in self.f2.find_labels()])
+        if v1.issubset(v2) and v2.issubset(v1): # strong equivalence on the same signature
+            monaOutput = "#{0} <-> {1} in THTf;\n{2};\nvar2 {3};\n  ~({4} => ((({5}) <=> ({6})) & (({7}) <=>({8}))));\n".format(
+                    self.f1,
+                    self.f2, 
+                    self.header,
+                    ",".join(["{0},{0}_p".format(v) for v in self.vars]),
+                    "&".join(["{0}_p sub {0}".format(v) for v in self.vars]),
+                    self.f1.to_mona(),
+                    self.f2.to_mona(),
+                    self.f1.to_mona_s(),
+                    self.f2.to_mona_s()
+            )
+        elif v1.issubset(v2): # f2 must be existentially quantified  
+            exv2 = v2.difference(v1)
+            monaOutput = "#({0}) <->(ex2 {1}: ({2})) ;\n{3};\nvar2 {4};\n ~(( {5} <=> (ex2 {6}: {7})) & (({8} & {9}) <=> (ex2 {10}: ({11} & {12})))) ;\n".format(
+                    self.f1,
+                    ",".join(["{}".format(v) for v in exv2]),
+                    self.f2, 
+                    self.header,
+                    ",".join(["{0},{0}_p".format(v) for v in v1]),
+                    self.f1.to_mona(),
+                    ",".join(["{0}".format(v) for v in exv2]),
+                    self.f2.to_mona(),
+                    "&".join(["{0}_p sub {0}".format(v) for v in v1]),
+                    self.f1.to_mona_s(),
+                    ",".join(["{0},{0}_p".format(v) for v in exv2]),
+                    "&".join(["{0}_p sub {0}".format(v) for v in v2]),
+                    self.f2.to_mona_s()
+            )
+        elif v2.issubset(v1): # f1 must be existentially quantified  
+            exv1 = v1.difference(v2)
+
+            monaOutput = "#(ex2 {0} : ({1})) <->({2}) ;\n{3};\nvar2 {4};\n ~(((ex2 {5}: {6}) <=> ({7})) & ((ex2 {8}: {9} & {10}) <=> ({11} & {12}))) ;\n".format(
+                    ",".join(["{}".format(v) for v in exv1]),
+                    self.f1,
+                    self.f2, 
+                    self.header,
+                    ",".join(["{0},{0}_p".format(v) for v in v2]),
+                    ",".join(["{0}".format(v) for v in exv1]),
+                    self.f1.to_mona(),
+                    self.f2.to_mona(),
+                    ",".join(["{0},{0}_p".format(v) for v in exv1]),
+                    "&".join(["{0}_p sub {0}".format(v) for v in v1]),
+                    self.f1.to_mona_s(),
+                    "&".join(["{0}_p sub {0}".format(v) for v in v2]),
+                    self.f2.to_mona_s()
+            )
+        
+        else:
+            fv = v1.intersection(v2) # free variables
+            exv1,exv2 = v1.difference(fv), v2.difference(fv)
+            monaOutput = "#(ex2 {0}:{1}) <->(ex2 {2}: ({3})) ;\n{4};\nvar2 {5};\n ~( ( (ex2 {6}: {7} )<=> (ex2 {8} : {9})) &  ( (ex2 {10}: {11} &  {12} )<=> (ex2 {13} : {14} & {15}))) ;\n".format(
+                    ",".join(["{}".format(v) for v in exv1]),
+                    self.f1,
+                    ",".join(["{}".format(v) for v in exv2]),
+                    self.f2, 
+                    self.header,
+                    ",".join(["{0},{0}_p".format(v) for v in fv]),
+                    ",".join(["{}".format(v) for v in exv1]),
+                    self.f1.to_mona(),
+                    ",".join(["{}".format(v) for v in exv2]),
+                    self.f2.to_mona(),
+                    ",".join(["{0},{0}_p".format(v) for v in exv1]),
+                    "&".join(["{0}_p sub {0}".format(v) for v in v1]),
+                    self.f1.to_mona_s(),
+                    ",".join(["{0},{0}_p".format(v) for v in exv2]),
+                    "&".join(["{0}_p sub {0}".format(v) for v in v2]),
+                    self.f2.to_mona_s(),
+            )
+
+        return monaOutput
+
+
+
+
 class Operator(Formula, ABC):
     """Implements an operator."""
 

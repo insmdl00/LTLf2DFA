@@ -11,6 +11,8 @@ import signal
 from sympy import symbols, And, Not, Or, simplify
 
 from ltlf2dfa.base import MonaProgram
+from ltlf2dfa.base import MonaSM
+from ltlf2dfa.base import MonaSEQ
 
 PACKAGE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -88,7 +90,6 @@ def parse_mona(mona_output):
  rankdir = LR;
  center = true;
  size = "7.5,10.5";
- edge [fontname = Courier];
  node [height = .5, width = .5];\n"""
     dot += " node [shape = doublecircle]; {};\n".format("; ".join(accepting_states))
     dot += """ node [shape = circle]; 1;
@@ -152,15 +153,15 @@ def compute_declare_assumption(s):
 def createMonafile(p: str):
     """Write the .mona file."""
     try:
-        with open("{}/automa.mona".format(PACKAGE_DIR), "w+") as file:
+        with open("/tmp/automa.mona", "w+") as file:
             file.write(p)
     except IOError:
         print("[ERROR]: Problem opening the automa.mona file!")
 
 
-def invoke_mona():
+def invoke_mona(command: str):
     """Execute the MONA tool."""
-    command = "mona -q -w {}/automa.mona".format(PACKAGE_DIR)
+    command = "mona -q -w /tmp/automa.mona"
     process = Popen(
         args=command,
         stdout=PIPE,
@@ -185,10 +186,36 @@ def output2dot(mona_output):
         return parse_mona(mona_output)
 
 
+def isSat(mona_output):
+    """Parse the mona output or return the unsatisfiable dot."""
+    if "Formula is unsatisfiable" in mona_output:
+        return "are strongly equivalent"
+    else:
+        return "are not strongly equivalent"
+
+
 def to_dfa(f) -> str:
     """Translate to deterministic finite-state automaton."""
     p = MonaProgram(f)
     mona_p_string = p.mona_program()
     createMonafile(mona_p_string)
-    mona_dfa = invoke_mona()
+    mona_dfa = invoke_mona("mona -q -w /tmp/automa.mona")
     return output2dot(mona_dfa)
+
+def to_dfa_sm(f) -> str:
+    """Translate to deterministic finite-state automaton."""
+    p =MonaSM(f)
+    mona_p_string = p.mona_program()
+    createMonafile(mona_p_string)
+    mona_dfa = invoke_mona("mona -q -w /tmp/automa.mona")
+    return output2dot(mona_dfa)
+
+def to_dfa_seq(f1,f2) -> str:
+    p =MonaSEQ(f1,f2)
+    mona_p_string = p.mona_program()
+    createMonafile(mona_p_string)
+    mona_output = invoke_mona("mona /tmp/automa.mona")
+    return "{} and {} {}".format(f1, f2, isSat(mona_output))
+
+
+
