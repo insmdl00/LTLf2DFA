@@ -26,7 +26,7 @@ class LTLfFormula(Formula, ABC):
        
     def new_var2(f,exv):
         """Compute next variable."""
-        v2 = PLAtomic("V_" + str(len(exv)))
+        v2 = PLAtomic("v" + str(len(exv)))
         exv[f] = v2
         return v2
     
@@ -41,7 +41,7 @@ class LTLfFormula(Formula, ABC):
         df = set([])
         v = self._to_tlp(exv,df)
         df.add(v)
-        return LTLfAnd(df)
+        return df
         
 
     def to_nnf(self) -> "LTLfFormula":
@@ -75,11 +75,6 @@ class LTLfFormula(Formula, ABC):
         transform a formula into a temporal logic program
         :return a (fresh) propositional atom label representing the formula 
         """
-    
-    def pv(self):
-        """return the propositional variables of a formula"""
-
-
     def to_ldlf(self):
         """
         Tranform the formula into an equivalent LDLf formula.
@@ -137,10 +132,6 @@ class LTLfAtomic(AtomicFormula, LTLfFormula):
     def _to_tlp(self,v,df):
         return self
 
-    def pv(self):
-        return set([self])
-
-
     # def to_ldlf(self):
     #     """Convert the formula to LDLf."""
     #     return LDLfDiamond(RegExpPropositional(PLAtomic(self.s)), LDLfLogicalTrue())
@@ -171,11 +162,6 @@ class LTLfTrue(LTLfAtomic):
     def _to_tlp(self,v,df):
         return self
 
-    def pv(self):
-        return set()
-
-
-
     # def to_ldlf(self):
     #     """Convert the formula to LDLf."""
     #     return LDLfDiamond(RegExpPropositional(PLTrue()), LDLfLogicalTrue())
@@ -205,9 +191,6 @@ class LTLfFalse(LTLfAtomic):
 
     def _to_tlp(self,v,df):
         return self
-
-    def pv(self):
-        return set()
 
 
 class LTLfNot(LTLfUnaryOperator):
@@ -250,10 +233,6 @@ class LTLfNot(LTLfUnaryOperator):
         df.add(LTLfAlways(LTLfEquivalence([nv,LTLfNot(sf)])))
         return nv
 
-    def pv(self):
-        return self.f.pv()
-
-
 class LTLfAnd(LTLfBinaryOperator):
     """Class for the LTLf And formula."""
 
@@ -291,12 +270,6 @@ class LTLfAnd(LTLfBinaryOperator):
         df.add(LTLfAlways(LTLfEquivalence([nv,LTLfAnd(sf)])))
         return nv
 
-    def pv(self):
-        r = set()
-        for i in self.formulas:
-            r.union(i.pv)
-        return r
-
 class LTLfOr(LTLfBinaryOperator):
     """Class for the LTLf Or formula."""
 
@@ -333,13 +306,6 @@ class LTLfOr(LTLfBinaryOperator):
             sf.append(cf)
         df.add(LTLfAlways(LTLfEquivalence([nv,LTLfOr(sf)])))
         return nv
-
-    def pv(self):
-        r = set()
-        for i in self.formulas:
-            r.union(i.pv)
-        return r
-
 
 class LTLfImplies(LTLfBinaryOperator):
     """Class for the LTLf Implication formula."""
@@ -389,13 +355,6 @@ class LTLfImplies(LTLfBinaryOperator):
         df.add(LTLfAlways(LTLfEquivalence([nv,LTLfImplies([f1,f2])])))
         return nv
 
-    def pv(self):
-        r1 = self.formulas[0].pv()
-        r2 = self.formulas[1].pv()
-        return r1.union(r2)
-
-
-
 class LTLfEquivalence(LTLfBinaryOperator):
     """Class for the LTLf Equivalente formula."""
 
@@ -439,12 +398,6 @@ class LTLfEquivalence(LTLfBinaryOperator):
             f2 = self.formulas[1]._to_tlp(v,df)
         df.add(LTLfAlways(LTLfEquivalence([nv,LTLfEquivalence([f1,f2])])))
         return nv
-
-    def pv(self):
-        r1 = self.formulas[0].pv()
-        r2 = self.formulas[1].pv()
-        return r1.union(r2)
-
 
 
 class LTLfNext(LTLfUnaryOperator):
@@ -499,8 +452,6 @@ class LTLfNext(LTLfUnaryOperator):
         df.add(LTLfAlways(LTLfImplies([LTLfLast(),LTLfNot(nv)])))
         return nv
 
-    def pv(self):
-        return self.f.pv()
 
 
 class LTLfWeakNext(LTLfUnaryOperator):
@@ -557,8 +508,6 @@ class LTLfWeakNext(LTLfUnaryOperator):
         df.add(LTLfAlways(LTLfImplies([LTLfLast(),nv])))
         return nv
 
-    def pv(self):
-        return self.f.pv()
 
 class LTLfUntil(LTLfBinaryOperator):
     """Class for the LTLf Until formula."""
@@ -614,13 +563,6 @@ class LTLfUntil(LTLfBinaryOperator):
         df.add(LTLfAlways(LTLfEquivalence([nv, LTLfOr([f2,LTLfAnd([f1,f3])])])))
         return nv
 
-    def pv(self):
-        r1 = self.formulas[0].pv()
-        r2 = self.formulas[1].pv()
-        return r1.union(r2)
-
-
-
 class LTLfRelease(LTLfBinaryOperator):
     """Class for the LTLf Release formula."""
 
@@ -675,12 +617,6 @@ class LTLfRelease(LTLfBinaryOperator):
         df.add(LTLfAlways(LTLfEquivalence([nv, LTLfAnd([f2,LTLfOr([f1,f3])])])))
         return nv
 
-    def pv(self):
-        r1 = self.formulas[0].pv()
-        r2 = self.formulas[1].pv()
-        return r1.union(r2)
-
-
 
 class LTLfEventually(LTLfUnaryOperator):
     """Class for the LTLf Eventually formula."""
@@ -723,12 +659,6 @@ class LTLfEventually(LTLfUnaryOperator):
         
         df.add(LTLfAlways(LTLfEquivalence([nv, LTLfOr([f1,f2])])))
         return nv
-
-    def pv(self):
-        return self.f.pv()
-
-
-
 
 class LTLfAlways(LTLfUnaryOperator):
     """Class for the LTLf Always formula."""
@@ -773,11 +703,6 @@ class LTLfAlways(LTLfUnaryOperator):
         return nv
 
 
-    def pv(self):
-        return self.f.pv()
-
-
-
 class LTLfLast(LTLfFormula):
     """Class for the LTLf Last formula."""
 
@@ -803,21 +728,18 @@ class LTLfLast(LTLfFormula):
     def _to_tlp(self,v,df):
         return self
 
-    def pv(self):
-        return set()
-
     def to_mona(self, v="0") -> str:
         """Return the MONA encoding of an LTLf atomic formula."""
         if v == "0":
-            return "(0 == max($))"
+            return "(0 = max($))"
         else:
-            return "({} in max($))".format(v)
+            return "({} = max($))".format(v)
 
     def to_mona_s(self,v="0") -> str:
         if v == "0":
-            return "(0 == max($))"
+            return "(0 = max($))"
         else:
-            return "({} in max($))".format(v)
+            return "({} = max($))".format(v)
 
 class LTLfEnd(LTLfFormula):
     """Class for the LTLf End formula."""
@@ -843,6 +765,3 @@ class LTLfEnd(LTLfFormula):
 
     def _to_tlp(self,v,df):
         return self
-
-    def pv(self):
-        return set()
