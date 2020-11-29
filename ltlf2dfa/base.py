@@ -128,11 +128,11 @@ class MonaProgram:
                 str(self.formula),
                 self.header,
                 ", ".join(self.vars),
-                self.formula.to_mona(),
+                self.formula.to_mona("0"),
             )
         else:
             return "#{};\n{};\n{};\n".format(
-                str(self.formula), self.header, self.formula.to_mona()
+                str(self.formula), self.header, self.formula.to_mona("0")
             )
 
 
@@ -168,15 +168,15 @@ class MonaSM:
                 str(self.formula),
                 self.header,
                 ", ".join(self.vars),
-                self.formula.to_mona(),
+                self.formula.to_mona("0"),
                 ",".join(["{0}_p".format(v) for v in self.vars]),
                 "&".join(["{0}_p sub {0}".format(v) for v in self.vars]),
                 "|".join(["{0}_p ~= {0}".format(v) for v in self.vars]),
-                self.formula.to_mona_s()
+                self.formula.to_mona_s("0")
             )
         else:
             return "#{};\n{};\n{};\n".format(
-                str(self.formula), self.header, self.formula.to_mona()
+                str(self.formula), self.header, self.formula.to_mona("0")
             )
 
 
@@ -216,10 +216,10 @@ class MonaSEQ:
                     self.header,
                     ",".join(["{0},{0}_p".format(v) for v in self.vars]),
                     "&".join(["{0}_p sub {0}".format(v) for v in self.vars]),
-                    self.f1.to_mona(),
-                    self.f2.to_mona(),
-                    self.f1.to_mona_s(),
-                    self.f2.to_mona_s()
+                    self.f1.to_mona("0"),
+                    self.f2.to_mona("0"),
+                    self.f1.to_mona_s("0"),
+                    self.f2.to_mona_s("0")
             )
         elif v1.issubset(v2): # f2 must be existentially quantified  
             exv2 = v2.difference(v1)
@@ -229,14 +229,14 @@ class MonaSEQ:
                     self.f2, 
                     self.header,
                     ",".join(["{0},{0}_p".format(v) for v in v1]),
-                    self.f1.to_mona(),
+                    self.f1.to_mona("0"),
                     ",".join(["{0}".format(v) for v in exv2]),
-                    self.f2.to_mona(),
+                    self.f2.to_mona("0"),
                     "&".join(["{0}_p sub {0}".format(v) for v in v1]),
-                    self.f1.to_mona_s(),
+                    self.f1.to_mona_s("0"),
                     ",".join(["{0},{0}_p".format(v) for v in exv2]),
                     "&".join(["{0}_p sub {0}".format(v) for v in v2]),
-                    self.f2.to_mona_s()
+                    self.f2.to_mona_s("0")
             )
         elif v2.issubset(v1): # f1 must be existentially quantified  
             exv1 = v1.difference(v2)
@@ -248,13 +248,13 @@ class MonaSEQ:
                     self.header,
                     ",".join(["{0},{0}_p".format(v) for v in v2]),
                     ",".join(["{0}".format(v) for v in exv1]),
-                    self.f1.to_mona(),
-                    self.f2.to_mona(),
+                    self.f1.to_mona("0"),
+                    self.f2.to_mona("0"),
                     ",".join(["{0},{0}_p".format(v) for v in exv1]),
                     "&".join(["{0}_p sub {0}".format(v) for v in v1]),
-                    self.f1.to_mona_s(),
+                    self.f1.to_mona_s("0"),
                     "&".join(["{0}_p sub {0}".format(v) for v in v2]),
-                    self.f2.to_mona_s()
+                    self.f2.to_mona_s("0")
             )
         
         else:
@@ -268,15 +268,15 @@ class MonaSEQ:
                     self.header,
                     ",".join(["{0},{0}_p".format(v) for v in fv]),
                     ",".join(["{}".format(v) for v in exv1]),
-                    self.f1.to_mona(),
+                    self.f1.to_mona("0"),
                     ",".join(["{}".format(v) for v in exv2]),
-                    self.f2.to_mona(),
+                    self.f2.to_mona("0"),
                     ",".join(["{0},{0}_p".format(v) for v in exv1]),
                     "&".join(["{0}_p sub {0}".format(v) for v in v1]),
-                    self.f1.to_mona_s(),
+                    self.f1.to_mona_s("0"),
                     ",".join(["{0},{0}_p".format(v) for v in exv2]),
                     "&".join(["{0}_p sub {0}".format(v) for v in v2]),
-                    self.f2.to_mona_s(),
+                    self.f2.to_mona_s("0"),
             )
 
         return monaOutput

@@ -22,6 +22,14 @@ from ltlf2dfa.ltlf import (
     LTLfAtomic,
     LTLfFalse,
     LTLfLast,
+    LTLfSince,
+    LTLfTrigger,
+    LTLfInit,
+    LTLfOnce,
+    LTLfHistorically,
+    LTLfInit,
+    LTLfBefore,
+    LTLfWBefore,
 )
 from ltlf2dfa.parser import CUR_DIR
 from ltlf2dfa.parser.pl import PLTransformer
@@ -94,6 +102,68 @@ class LTLfTransformer(Transformer):
             return LTLfUntil(subformulas)
         else:
             raise ParsingError
+
+    def ltlf_since(self, args):
+        """Parse PLTLf Since."""
+        if len(args) == 1:
+            return args[0]
+        elif (len(args) - 1) % 2 == 0:
+            subformulas = args[::2]
+            return LTLfSince(subformulas)
+        else:
+            raise ParsingError
+
+    def ltlf_trigger(self, args):
+        """Parse PLTLf Since."""
+        if len(args) == 1:
+            return args[0]
+        elif (len(args) - 1) % 2 == 0:
+            subformulas = args[::2]
+            return LTLfTrigger(subformulas)
+        else:
+            raise ParsingError
+
+    def ltlf_historically(self, args):
+        """Parse PLTLf Historically."""
+        if len(args) == 1:
+            return args[0]
+        else:
+            f = args[-1]
+            for _ in args[:-1]:
+                f = LTLfHistorically(f)
+            return f
+
+    def ltlf_once(self, args):
+        """Parse PLTLf Once."""
+        if len(args) == 1:
+            return args[0]
+        else:
+            f = args[-1]
+            for _ in args[:-1]:
+                f = LTLfOnce(f)
+            return f
+
+    def ltlf_before(self, args):
+        """Parse PLTLf Before."""
+        if len(args) == 1:
+            return args[0]
+        else:
+            f = args[-1]
+            for _ in args[:-1]:
+                f = LTLfBefore(f)
+            return f
+
+
+    def ltlf_wbefore(self, args):
+        """Parse PLTLf Before."""
+        if len(args) == 1:
+            return args[0]
+        else:
+            f = args[-1]
+            for _ in args[:-1]:
+                f = LTLfWBefore(f)
+            return f
+
 
     def ltlf_release(self, args):
         """Parse LTLf Release."""
@@ -181,6 +251,10 @@ class LTLfTransformer(Transformer):
     def ltlf_last(self, args):
         """Parse LTLf Last."""
         return LTLfLast()
+
+    def ltlf_init(self, args):
+        """Parse LTLf Last."""
+        return LTLfInit()
 
     # def ltlf_end(self, args):
     #     raise NotImplementedError("LTLf end not supported, yet")
