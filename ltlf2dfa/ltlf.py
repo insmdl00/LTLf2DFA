@@ -20,10 +20,18 @@ from ltlf2dfa.pl import PLAtomic
 from ltlf2dfa.symbols import Symbols, OpSymbol
 from ltlf2dfa.helpers import new_var
 
+from sympy import symbols, And, Not, Or, Implies, simplify
 
 class LTLfFormula(Formula, ABC):
     """A class for the LTLf formula."""
-       
+    
+    def closure(self):
+        return set([])
+
+
+    def delta(self,s,X):
+        return None
+
     def new_var2(f,exv):
         """Compute next variable."""
         v2 = PLAtomic("v" + str(len(exv)))
@@ -107,6 +115,14 @@ class LTLfAtomic(AtomicFormula, LTLfFormula):
     """Class for LTLf atomic formulas."""
 
     name_regex = re.compile(r"[a-z][a-z0-9_]*")
+    def delta(self,l,X):
+        if self.s in X :
+            return True
+        else:
+            return False
+
+    def closure(self):
+        return set([self,LTLfNot(self)])
 
     def negate(self):
         """Negate the formula."""
@@ -137,8 +153,15 @@ class LTLfAtomic(AtomicFormula, LTLfFormula):
     #     return LDLfDiamond(RegExpPropositional(PLAtomic(self.s)), LDLfLogicalTrue())
 
 
+
 class LTLfTrue(LTLfAtomic):
     """Class for the LTLf True formula."""
+
+    def delta(self,l,X):
+        return True
+
+    def closure(self):
+        return set([self])
 
     def __init__(self):
         """Initialize the formula."""
@@ -170,6 +193,12 @@ class LTLfTrue(LTLfAtomic):
 class LTLfFalse(LTLfAtomic):
     """Class for the LTLf False formula."""
 
+    def delta(self,l,X):
+        return False
+
+    def closure(self):
+        return set([self])
+
     def __init__(self):
         """Initialize the formula."""
         super().__init__(Symbols.FALSE.value)
@@ -195,6 +224,12 @@ class LTLfFalse(LTLfAtomic):
 
 class LTLfNot(LTLfUnaryOperator):
     """Class for the LTLf not formula."""
+
+    def delta(self,l,X):
+        return Not(self.f.delta(l,X))
+
+    def closure(self):
+        return set([self,self.f]).union(self.f.closure())
 
     @property
     def operator_symbol(self) -> OpSymbol:
@@ -236,6 +271,18 @@ class LTLfNot(LTLfUnaryOperator):
 class LTLfAnd(LTLfBinaryOperator):
     """Class for the LTLf And formula."""
 
+    def delta(self,l,X):
+        v = True
+        for i in self.formulas:
+            v = And(v,i.delta(l,X))
+        return v
+
+
+    def closure(self):
+        s = set([self,LTLfNot(self)])
+        for i in self.formulas:
+            s=s.union(i.closure())
+        return s
     @property
     def operator_symbol(self) -> OpSymbol:
         """Get the operator symbol."""
@@ -272,6 +319,19 @@ class LTLfAnd(LTLfBinaryOperator):
 
 class LTLfOr(LTLfBinaryOperator):
     """Class for the LTLf Or formula."""
+    
+    def delta(self,l,X):
+        v = False
+        for i in self.formulas:
+            v = Or(v,i.delta(l,X))
+        return v
+
+
+    def closure(self):
+        s = set([self,LTLfNot(self)])
+        for i in self.formulas:
+            s=s.union(i.closure())
+        return s
 
     @property
     def operator_symbol(self) -> OpSymbol:
@@ -309,6 +369,13 @@ class LTLfOr(LTLfBinaryOperator):
 
 class LTLfImplies(LTLfBinaryOperator):
     """Class for the LTLf Implication formula."""
+    def delta(self,l,X):
+        first, second = self.formulas[0:2]
+        return Or(Not(first.delta(l,X)),second.delta(l,X))
+
+    def closure(self):
+        first, second = self.formulas[0:2]
+        return LTLfOr([LTLfNot(first),second]).closure()
 
     @property
     def operator_symbol(self) -> OpSymbol:
@@ -358,6 +425,14 @@ class LTLfImplies(LTLfBinaryOperator):
 class LTLfEquivalence(LTLfBinaryOperator):
     """Class for the LTLf Equivalente formula."""
 
+    def delta(self,l,X):
+        f,g = self.formulas[0:2]
+        f,g = f.delta(l,X), g.delta(l,X)
+        return Or(And(f,g),And(Not(f),Not(g)))
+
+    def closure(self):
+        f,g = self.formulas[0:2]
+        return set([LTLfNot(self),self]).union(f.closure()).union(g.closure())
     @property
     def operator_symbol(self) -> OpSymbol:
         """Get the operator symbol."""
@@ -403,6 +478,15 @@ class LTLfEquivalence(LTLfBinaryOperator):
 class LTLfNext(LTLfUnaryOperator):
     """Class for the LTLf Next formula."""
 
+    def delta(self,l,X):
+        if 'last' in X:
+            return False
+        else:
+            return symbols("s" + str(l.index(self.f)))
+
+
+    def closure(self):
+        return set([self, LTLfNot(self)]).union(self.f.closure())
     @property
     def operator_symbol(self) -> OpSymbol:
         """Get the operator symbol."""
@@ -457,6 +541,14 @@ class LTLfNext(LTLfUnaryOperator):
 class LTLfWeakNext(LTLfUnaryOperator):
     """Class for the LTLf Weak Next formula."""
 
+    def delta(self,l,X):
+        if 'last' in X:
+            return True
+        else:
+            return symbols("s" + str(l.index(self.f)))
+
+    def closure(self):
+        return set([self, LTLfNot(self)]).union(self.f.closure())
     @property
     def operator_symbol(self) -> OpSymbol:
         """Get the operator symbol."""
@@ -512,6 +604,23 @@ class LTLfWeakNext(LTLfUnaryOperator):
 class LTLfUntil(LTLfBinaryOperator):
     """Class for the LTLf Until formula."""
 
+
+    def delta(self,l,X): #we should be able to manage the ords regarding last      
+        f1 = self.formulas[0].delta(l,X)
+        f2 = self.formulas[1].delta(l,X)
+        if 'last' in X:
+            return f2
+        else: 
+            return Or(f2,And(f1,symbols("s" + str(l.index(self)))))
+
+
+    def closure(self):
+        s = set([self, LTLfNot(self)])
+        s = s.union(self.formulas[0].closure())
+        s = s.union(self.formulas[1].closure())
+        return s
+
+
     @property
     def operator_symbol(self) -> OpSymbol:
         """Get the operator symbol."""
@@ -565,6 +674,26 @@ class LTLfUntil(LTLfBinaryOperator):
 
 class LTLfRelease(LTLfBinaryOperator):
     """Class for the LTLf Release formula."""
+
+
+
+    def delta(self,l,X): #we should be able to manage the ords regarding last      
+        f1 = self.formulas[0].delta(l,X)
+        f2 = self.formulas[1].delta(l,X)
+        if 'last' in X:
+            return f2
+        else: 
+            return And(f2,Or(f1,symbols("s" + str(l.index(self)))))
+
+
+
+    
+    def closure(self):
+        s = set([self, LTLfNot(self)])
+        s = s.union(self.formulas[0].closure())
+        s = s.union(self.formulas[1].closure())
+        return s
+
 
     @property
     def operator_symbol(self) -> OpSymbol:
@@ -620,6 +749,19 @@ class LTLfRelease(LTLfBinaryOperator):
 
 class LTLfEventually(LTLfUnaryOperator):
     """Class for the LTLf Eventually formula."""
+    
+
+    def delta(self,l,X): #we should be able to manage the ords regarding last      
+        f1 = self.f.delta(l,X)
+        if 'last' in X:
+            return f1
+        else: 
+            return Or(f1,symbols("s" + str(l.index(self))))
+
+    def closure(self):
+        s = set([self, LTLfNot(self)])
+        s = s.union(self.f.closure())
+        return s
 
     @property
     def operator_symbol(self) -> OpSymbol:
@@ -663,6 +805,21 @@ class LTLfEventually(LTLfUnaryOperator):
 class LTLfAlways(LTLfUnaryOperator):
     """Class for the LTLf Always formula."""
 
+
+    def delta(self,l,X): #we should be able to manage the ords regarding last      
+        f1 = self.f.delta(l,X)
+        if 'last' in X:
+            return f1
+        else: 
+            return And(f1,symbols("s" + str(l.index(self))))
+
+
+
+    def closure(self):
+        s = set([self, LTLfNot(self)])
+        s = s.union(self.f.closure())
+        return s
+
     @property
     def operator_symbol(self) -> OpSymbol:
         """Get the operator symbol."""
@@ -705,6 +862,18 @@ class LTLfAlways(LTLfUnaryOperator):
 
 class LTLfLast(LTLfFormula):
     """Class for the LTLf Last formula."""
+
+    def delta(self,l,X): # How do we handle the final
+        if 'last' in X:
+            return True;
+        else:
+            return False;
+
+
+
+    def closure(self):
+        return set([])
+
 
     def to_nnf(self) -> LTLfFormula:
         """Transform to NNF."""
@@ -770,6 +939,8 @@ class LTLfEnd(LTLfFormula):
 class LTLfBefore(LTLfUnaryOperator):
     """Class for the PLTLf Before formula."""
 
+    def closure(self):
+        raise Exception('not implemented')
     @property
     def operator_symbol(self) -> OpSymbol:
         """Get the operator symbol."""
@@ -817,6 +988,8 @@ class LTLfBefore(LTLfUnaryOperator):
 class LTLfWBefore(LTLfUnaryOperator):
     """Class for the PLTLf Before formula."""
 
+    def closure(self):
+        raise Exception('not implemented')
     @property
     def operator_symbol(self) -> OpSymbol:
         """Get the operator symbol."""
@@ -864,6 +1037,8 @@ class LTLfWBefore(LTLfUnaryOperator):
 class LTLfSince(LTLfBinaryOperator):
     """Class for the PLTLf Since formula."""
 
+    def closure(self):
+        raise Exception('not implemented')
     @property
     def operator_symbol(self) -> OpSymbol:
         """Get the operator symbol."""
@@ -920,6 +1095,8 @@ class LTLfSince(LTLfBinaryOperator):
 class LTLfTrigger(LTLfBinaryOperator):
     """Class for the PLTLf Since formula."""
 
+    def closure(self):
+        raise Exception('not implemented')
     @property
     def operator_symbol(self) -> OpSymbol:
         """Get the operator symbol."""
@@ -976,6 +1153,8 @@ class LTLfTrigger(LTLfBinaryOperator):
 class LTLfOnce(LTLfUnaryOperator):
     """Class for the PLTLf Once formula."""
 
+    def closure(self):
+        raise Exception('not implemented')
     @property
     def operator_symbol(self) -> OpSymbol:
         """Get the operator symbol."""
@@ -1016,6 +1195,8 @@ class LTLfOnce(LTLfUnaryOperator):
 class LTLfHistorically(LTLfUnaryOperator):
     """Class for the PLTLf Historically formula."""
 
+    def closure(self):
+        raise Exception('not implemented')
     @property
     def operator_symbol(self) -> OpSymbol:
         """Get the operator symbol."""
@@ -1041,6 +1222,8 @@ class LTLfHistorically(LTLfUnaryOperator):
 class LTLfInit(LTLfFormula):
     """Class for the PLTLf Last formula."""
 
+    def closure(self):
+        raise Exception('not implemented')
     # def to_nnf(self) -> PLTLfFormula:
     #     """Transform to NNF."""
     #     return PLTLfAnd([PLTLfWeakBefore(PLTLfFalse()), PLTLfNot(PLTLfEnd())]).to_nnf()
