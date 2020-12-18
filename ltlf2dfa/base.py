@@ -278,7 +278,6 @@ class MonaSEQ:
                     "&".join(["{0}_p sub {0}".format(v) for v in v2]),
                     self.f2.to_mona_s("0"),
             )
-
         return monaOutput
 
 
