@@ -869,11 +869,8 @@ class LTLfLast(LTLfFormula):
         else:
             return False;
 
-
-
     def closure(self):
         return set([])
-
 
     def to_nnf(self) -> LTLfFormula:
         """Transform to NNF."""

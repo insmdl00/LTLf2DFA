@@ -194,7 +194,7 @@ class MonaSEQ:
         """
         self.f1,self.f2 = f1,f2
         self.vars = set([v.upper() for v in f1.find_labels()]).union(set([v.upper() for v in f2.find_labels()]))
-
+        print(self.vars)
 
     def _set_vars(self):
         """Set MONA vars."""
@@ -210,7 +210,19 @@ class MonaSEQ:
         v1 = set([v.upper() for v in self.f1.find_labels()])
         v2 = set([v.upper() for v in self.f2.find_labels()])
         if v1.issubset(v2) and v2.issubset(v1): # strong equivalence on the same signature
-            monaOutput = "#{0} <-> {1} in THTf;\n{2};\nvar2 {3};\n  ~(({4}) => ((({5}) <=> ({6})) & (({7}) <=>({8}))));\n".format(
+            print('normal strong equivalence')
+            if len(v1) == 0 and len(v2) == 0:
+                monaOutput = "#{0} <-> {1} in THTf;\n{2};\n ~((({3}) <=> ({4})) & (({5}) <=>({6})));\n".format(
+                    self.f1,
+                    self.f2, 
+                    self.header,
+                    self.f1.to_mona("0"),
+                    self.f2.to_mona("0"),
+                    self.f1.to_mona_s("0"),
+                    self.f2.to_mona_s("0")
+            )
+            else:
+                monaOutput = "#{0} <-> {1} in THTf;\n{2};\nvar2 {3};\n  ~(({4}) => ((({5}) <=> ({6})) & (({7}) <=>({8}))));\n".format(
                     self.f1,
                     self.f2, 
                     self.header,
@@ -223,21 +235,38 @@ class MonaSEQ:
             )
         elif v1.issubset(v2): # f2 must be existentially quantified  
             exv2 = v2.difference(v1)
-            monaOutput = "#({0}) <->(ex2 {1}: ({2})) ;\n{3};\nvar2 {4};\n ~(( {5} <=> (ex2 {6}: {7})) & (({8} & {9}) <=> (ex2 {10}: ({11} & {12})))) ;\n".format(
-                    self.f1,
+            print(exv2)
+
+
+            monaOutput = "#({0}) <->(ex2 {1}: ({2})) ;\n{3};\n".format(self.f1,
                     ",".join(["{}".format(v) for v in exv2]),
-                    self.f2, 
+                    self.f2,
                     self.header,
-                    ",".join(["{0},{0}_p".format(v) for v in v1]),
+                    )
+            if len(v1) != 0:
+                monaOutput += "var2 {0};\n".format(",".join(["{0},{0}_p".format(v) for v in v1])) 
+                monaOutput += "~(({0} <=> (ex2 {1}: {2})) & (({3} & {4}) <=> (ex2 {5}: ({6} & {7})))) ;\n".format(
                     self.f1.to_mona("0"),
-                    ",".join(["{0}".format(v) for v in exv2]),
+                     ",".join(["{0}".format(v) for v in exv2]),
                     self.f2.to_mona("0"),
                     "&".join(["{0}_p sub {0}".format(v) for v in v1]),
                     self.f1.to_mona_s("0"),
                     ",".join(["{0},{0}_p".format(v) for v in exv2]),
                     "&".join(["{0}_p sub {0}".format(v) for v in v2]),
                     self.f2.to_mona_s("0")
-            )
+                    )
+            else:
+                #monaOutput += "var2 {0};\n".format(",".join(["{0},{0}_p".format(v) for v in v1])) 
+                monaOutput += "~(({0} <=> (ex2 {1}: {2})) & (({3}) <=> (ex2 {4}: ({5} & {6})))) ;\n".format(
+                    self.f1.to_mona("0"),
+                     ",".join(["{0}".format(v) for v in exv2]),
+                    self.f2.to_mona("0"),
+                    self.f1.to_mona_s("0"),
+                    ",".join(["{0},{0}_p".format(v) for v in exv2]),
+                    "&".join(["{0}_p sub {0}".format(v) for v in v2]),
+                    self.f2.to_mona_s("0")
+                    )
+
         elif v2.issubset(v1): # f1 must be existentially quantified  
             exv1 = v1.difference(v2)
 
