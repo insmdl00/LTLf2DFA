@@ -180,7 +180,158 @@ class MonaSM:
             )
 
 
-class MonaSEQ:
+
+
+
+class MonaPSE:
+    vars: Set[str] = set()
+
+    def __init__(self, f1: Formula, f2: Formula):
+        """Initialize.
+        :param f1: formula to encode.
+        :param f2: formula to encode.
+        """
+        self.f1,self.f2 = f1,f2
+        self.vars = set([v.upper() for v in f1.find_labels()]).union(set([v.upper() for v in f2.find_labels()]))
+
+    def _set_vars(self):
+        """Set MONA vars."""
+        self.vars = set([v.upper() for v in self.f.find_labels()])
+
+    def __repr__(self):
+        """Nice representation."""
+        return "({})<->({})".formatstr(self)
+
+    def mona_program(self) -> str:
+        """Construct the MONA program."""
+        monaOutput = None
+        v1 = set([v.upper() for v in self.f1.find_labels()])
+        v2 = set([v.upper() for v in self.f2.find_labels()])
+        if v1.issubset(v2) and v2.issubset(v1): # strong equivalence on the same signature
+            if len(v1) == 0 and len(v2) == 0:
+                monaOutput = "#{0} <-> {1} in THTf;\n{2};\n ~((({3}) <=> ({4})) & (({5}) <=>({6})));\n".format(
+                    self.f1,
+                    self.f2, 
+                    self.header,
+                    self.f1.to_mona("0"),
+                    self.f2.to_mona("0"),
+                    self.f1.to_mona_s("0"),
+                    self.f2.to_mona_s("0")
+            )
+            else:
+                monaOutput = "#{0} <-> {1} in THTf;\n{2};\nvar2 {3};\n  ~(({4}) => ((({5}) <=> ({6})) & (({7}) <=>({8}))));\n".format(
+                    self.f1,
+                    self.f2, 
+                    self.header,
+                    ",".join(["{0},{0}_p".format(v) for v in self.vars]),
+                    "&".join(["{0}_p sub {0}".format(v) for v in self.vars]),
+                    self.f1.to_mona("0"),
+                    self.f2.to_mona("0"),
+                    self.f1.to_mona_s("0"),
+                    self.f2.to_mona_s("0")
+            )
+        elif v1.issubset(v2): # f2 must be existentially quantified  
+            exv2 = v2.difference(v1)
+            print(exv2)
+
+
+            monaOutput = "#({0}) <->(ex2 {1}: ({2})) ;\n{3};\n".format(self.f1,
+                    ",".join(["{}".format(v) for v in exv2]),
+                    self.f2,
+                    self.header,
+                    )
+            if len(v1) != 0:
+                monaOutput += "var2 {0};\n".format(",".join(["{0},{0}_p".format(v) for v in v1])) 
+                monaOutput += "~(({0} <=> (ex2 {1}: {2})) & (({3} & {4}) <=> (ex2 {5}: ({6} & {7})))) ;\n".format(
+                    self.f1.to_mona("0"),
+                     ",".join(["{0}".format(v) for v in exv2]),
+                    self.f2.to_mona("0"),
+                    "&".join(["{0}_p sub {0}".format(v) for v in v1]),
+                    self.f1.to_mona_s("0"),
+                    ",".join(["{0},{0}_p".format(v) for v in exv2]),
+                    "&".join(["{0}_p sub {0}".format(v) for v in v2]),
+                    self.f2.to_mona_s("0")
+                    )
+            else:
+                #monaOutput += "var2 {0};\n".format(",".join(["{0},{0}_p".format(v) for v in v1])) 
+                monaOutput += "~(({0} <=> (ex2 {1}: {2})) & (({3}) <=> (ex2 {4}: ({5} & {6})))) ;\n".format(
+                    self.f1.to_mona("0"),
+                     ",".join(["{0}".format(v) for v in exv2]),
+                    self.f2.to_mona("0"),
+                    self.f1.to_mona_s("0"),
+                    ",".join(["{0},{0}_p".format(v) for v in exv2]),
+                    "&".join(["{0}_p sub {0}".format(v) for v in v2]),
+                    self.f2.to_mona_s("0")
+                    )
+
+        elif v2.issubset(v1): # f1 must be existentially quantified  
+            exv1 = v1.difference(v2)
+
+            monaOutput = "#(ex2 {0} : ({1})) <->({2}) ;\n{3};\nvar2 {4};\n ~(((ex2 {5}: {6}) <=> ({7})) & ((ex2 {8}: {9} & {10}) <=> ({11} & {12}))) ;\n".format(
+                    ",".join(["{}".format(v) for v in exv1]),
+                    self.f1,
+                    self.f2, 
+                    self.header,
+                    ",".join(["{0},{0}_p".format(v) for v in v2]),
+                    ",".join(["{0}".format(v) for v in exv1]),
+                    self.f1.to_mona("0"),
+                    self.f2.to_mona("0"),
+                    ",".join(["{0},{0}_p".format(v) for v in exv1]),
+                    "&".join(["{0}_p sub {0}".format(v) for v in v1]),
+                    self.f1.to_mona_s("0"),
+                    "&".join(["{0}_p sub {0}".format(v) for v in v2]),
+                    self.f2.to_mona_s("0")
+            )
+        
+        else:
+            fv = v1.intersection(v2) # free variables
+            exv1,exv2 = v1.difference(fv), v2.difference(fv)
+            monaOutput = "#(ex2 {0}:{1}) <->(ex2 {2}: ({3})) ;\n{4};\nvar2 {5};\n ~( ( (ex2 {6}: {7} )<=> (ex2 {8} : {9})) &  ( (ex2 {10}: {11} &  {12} )<=> (ex2 {13} : {14} & {15}))) ;\n".format(
+                    ",".join(["{}".format(v) for v in exv1]),
+                    self.f1,
+                    ",".join(["{}".format(v) for v in exv2]),
+                    self.f2, 
+                    self.header,
+                    ",".join(["{0},{0}_p".format(v) for v in fv]),
+                    ",".join(["{}".format(v) for v in exv1]),
+                    self.f1.to_mona("0"),
+                    ",".join(["{}".format(v) for v in exv2]),
+                    self.f2.to_mona("0"),
+                    ",".join(["{0},{0}_p".format(v) for v in exv1]),
+                    "&".join(["{0}_p sub {0}".format(v) for v in v1]),
+                    self.f1.to_mona_s("0"),
+                    ",".join(["{0},{0}_p".format(v) for v in exv2]),
+                    "&".join(["{0}_p sub {0}".format(v) for v in v2]),
+                    self.f2.to_mona_s("0"),
+            )
+        return monaOutput
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+class MonaSF:
     """Implements a MONA SM program."""
 
     header = "m2l-str"

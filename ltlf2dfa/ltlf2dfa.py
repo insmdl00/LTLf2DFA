@@ -12,7 +12,7 @@ from sympy import symbols, And, Not, Or, simplify
 
 from ltlf2dfa.base import MonaProgram
 from ltlf2dfa.base import MonaSM
-from ltlf2dfa.base import MonaSEQ
+#from ltlf2dfa.base import MonaSEQ
 
 PACKAGE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -210,8 +210,8 @@ def to_dfa_sm(f) -> str:
     mona_dfa = invoke_mona("mona -q -w /tmp/automa.mona")
     return output2dot(mona_dfa)
 
-def to_dfa_seq(f1,f2) -> str:
-    p =MonaSEQ(f1,f2)
+def to_dfa_sf(f1,f2) -> str:
+    p =MonaSF(f1,f2)
     mona_p_string = p.mona_program()
     createMonafile(mona_p_string)
     mona_output = invoke_mona("mona /tmp/automa.mona")
