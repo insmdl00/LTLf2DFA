@@ -15,7 +15,7 @@ from ltlf2dfa.base import (
 )
 from ltlf2dfa.ltlf2dfa import to_dfa
 from ltlf2dfa.ltlf2dfa import to_dfa_sm
-#from ltlf2dfa.ltlf2dfa import to_dfa_seq
+from ltlf2dfa.ltlf2dfa import to_dfa_seq
 from ltlf2dfa.pl import PLAtomic
 from ltlf2dfa.symbols import Symbols, OpSymbol
 from ltlf2dfa.helpers import new_var
@@ -98,9 +98,9 @@ class LTLfFormula(Formula, ABC):
         """Translate into a DFA."""
         return to_dfa_sm(self)
 
-    #def strongly_equivalent_to(self,f) -> str:
+    def strongly_equivalent_to(self,f) -> str:
         """Translate into a DFA."""
-    #    return to_dfa_seq(self,f)
+        return to_dfa_seq(self,f)
 
 
 class LTLfUnaryOperator(UnaryOperator[LTLfFormula], LTLfFormula, ABC):

@@ -186,6 +186,8 @@ class MonaSM:
 class MonaPSE:
     vars: Set[str] = set()
 
+    header = "m2l-str"
+
     def __init__(self, f1: Formula, f2: Formula):
         """Initialize.
         :param f1: formula to encode.
