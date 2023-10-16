@@ -601,11 +601,61 @@ class LTLfWeakNext(LTLfUnaryOperator):
         return nv
 
 
-class LTLfUntil(LTLfBinaryOperator):
+class LTLfWhile(LTLfBinaryOperator):
     """Class for the LTLf Until formula."""
 
 
     def delta(self,l,X): #we should be able to manage the ords regarding last      
+        raise NotImplementedError("not implemented method delta for the case of While operator")
+
+
+    def closure(self):
+        raise NotImplementedError("not implemented closure method method for the case of While operator")
+
+    @property
+    def operator_symbol(self) -> OpSymbol:
+        """Get the operator symbol."""
+        return Symbols.WHILE.value
+
+    def to_nnf(self):
+        """Transform to NNF."""
+        return LTLfWhile([f.to_nnf() for f in self.formulas])
+
+    def negate(self):
+        """Negate the formula."""
+        raise NotImplementedError("not implemented negate method method for the case of While operator")
+
+
+    def to_mona(self, v="0") -> str:
+        """Return the MONA encoding of an LTLf While formula."""
+        all_var = new_var(v)
+        all_var2 = new_var(all_var)
+        f2 = self.formulas[1].to_mona(v=all_var2)
+        f1 = self.formulas[0].to_mona(v=all_var)
+        return "(all1 {0}: {1}<={0}&{0}<=max($) => ((  all1 {3}: {1}<={3}&{3}<={0} =>  {2}) & {4}))".format(all_var, v, f2, all_var2, f1)
+
+
+    def to_mona_s(self, v="0") -> str:
+        """Return the MONA encoding of an LTLf While formula."""
+        all_var = new_var(v)
+        all_var2 = new_var(all_var)
+        rt = LTLfRelease([LTLfNot(self.formulas[1]), self.formulas[0]]).to_mona(v)
+        f2p = self.formulas[1].to_mona_s(v=all_var2)
+        f1p = self.formulas[0].to_mona_s(v=all_var)
+        rh = "(all1 {0}: {1}<={0}&{0}<=max($) => ((  all1 {3}: {1}<={3}&{3}<={0} =>  {2}) & {4}))".format(all_var, v, f2p, all_var2, f1p)
+        return "({}) & ({})".format(rh,rt)
+
+
+    def _to_tlp(self,v,df):
+        raise NotImplementedError("not implemented _to_tlp method for the case of While operator")
+
+
+
+class LTLfUntil(LTLfBinaryOperator):
+    """Class for the LTLf Until formula."""
+
+
+    def delta(self,l,X): #we should be able to manage the words regarding last      
         f1 = self.formulas[0].delta(l,X)
         f2 = self.formulas[1].delta(l,X)
         if 'last' in X:
@@ -633,14 +683,6 @@ class LTLfUntil(LTLfBinaryOperator):
     def negate(self):
         """Negate the formula."""
         return LTLfRelease([f.negate() for f in self.formulas])
-
-    def to_mona(self, v="0") -> str:
-        """Return the MONA encoding of an LTLf Until formula."""
-        ex_var = new_var(v)
-        all_var = new_var(ex_var)
-        f1 = self.formulas[0].to_mona(v=all_var)
-        f2 = self.formulas[1].to_mona(v=ex_var)
-        return "(ex1 {0}: {1}<={0}&{0}<=max($) & {2} & (all1 {3}: {1}<={3}&{3}<{0} => {4}))".format(ex_var, v, f2, all_var, f1)
 
     def to_mona_s(self,v="0") -> str:
         """Return the MONA encoding of an LTLf Until formula."""
@@ -671,6 +713,19 @@ class LTLfUntil(LTLfBinaryOperator):
 
         df.add(LTLfAlways(LTLfEquivalence([nv, LTLfOr([f2,LTLfAnd([f1,f3])])])))
         return nv
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 class LTLfRelease(LTLfBinaryOperator):
     """Class for the LTLf Release formula."""

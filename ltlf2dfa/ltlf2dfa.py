@@ -186,12 +186,9 @@ def output2dot(mona_output):
         return parse_mona(mona_output)
 
 
-def isSat(mona_output):
+def isUNSAT(mona_output):
     """Parse the mona output or return the unsatisfiable dot."""
-    if "Formula is unsatisfiable" in mona_output:
-        return "are strongly equivalent"
-    else:
-        return "are not strongly equivalent"
+    return "Formula is unsatisfiable" in mona_output
 
 
 def to_dfa(f) -> str:
@@ -221,8 +218,11 @@ def to_dfa_seq(f1,f2) -> str:
     p =MonaPSE(f1,f2)
     mona_p_string = p.mona_program()
     createMonafile(mona_p_string)
-    mona_output = invoke_mona("mona /tmp/automa.mona")
-    return "{} and {} {}".format(f1, f2, isSat(mona_output))
-
-
+    mona_output = invoke_mona("mona -q -w /tmp/automa.mona")
+    if (isUNSAT(mona_output)):
+        return "{} and {} are strongly equivalent".format(f1, f2)
+    else:
+        return parse_mona(mona_output)
+        #return "{} and {} are not strongly equivalent".format(f1, f2)
+        
 

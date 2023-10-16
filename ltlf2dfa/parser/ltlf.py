@@ -13,6 +13,7 @@ from ltlf2dfa.ltlf import (
     LTLfAnd,
     LTLfNot,
     LTLfUntil,
+    LTLfWhile,
     LTLfRelease,
     LTLfAlways,
     LTLfEventually,
@@ -100,6 +101,16 @@ class LTLfTransformer(Transformer):
         elif (len(args) - 1) % 2 == 0:
             subformulas = args[::2]
             return LTLfUntil(subformulas)
+        else:
+            raise ParsingError
+
+    def ltlf_while(self, args):
+        """Parse LTLf While."""
+        if len(args) == 1:
+            return args[0]
+        elif (len(args) - 1) % 2 == 0:
+            subformulas = args[::2]
+            return LTLfWhile(subformulas)
         else:
             raise ParsingError
 

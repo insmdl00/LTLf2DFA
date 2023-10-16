@@ -19,6 +19,7 @@ class Symbols(Enum):
     NEXT = "X"
     WEAK_NEXT = "WX"
     UNTIL = "U"
+    WHILE = "W"
     RELEASE = "R"
     EVENTUALLY = "F"
     ALWAYS = "G"

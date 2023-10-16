@@ -6,7 +6,8 @@ start: ltlf_formula
 ?ltlf_or:          ltlf_and (OR ltlf_and)*
 ?ltlf_and:         ltlf_until (AND ltlf_until)*
 ?ltlf_until:       ltlf_release (UNTIL ltlf_release)*
-?ltlf_release:     ltlf_trigger (RELEASE ltlf_trigger)*
+?ltlf_release:     ltlf_while (RELEASE ltlf_while)*
+?ltlf_while: 	   ltlf_trigger (WHILE ltlf_trigger)*
 ?ltlf_trigger:     ltlf_since (TRIGGER ltlf_since)*
 ?ltlf_since:       ltlf_unaryop(SINCE ltlf_unaryop)*
 
@@ -45,6 +46,7 @@ ltlf_init: START
 
 // Operators must not be part of a word
 UNTIL.2: /U(?=[^a-z]|$)/
+WHILE.2: /W(?=[^a-z]|$)/
 RELEASE.2: /R(?=[^a-z]|$)/
 ALWAYS.2: /G(?=[^a-z]|$)/
 EVENTUALLY.2: /F(?=[^a-z]|$)/
