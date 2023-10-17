@@ -632,7 +632,7 @@ class LTLfWhile(LTLfBinaryOperator):
         all_var2 = new_var(all_var)
         f2 = self.formulas[1].to_mona(v=all_var2)
         f1 = self.formulas[0].to_mona(v=all_var)
-        return "(all1 {0}: {1}<={0}&{0}<=max($) => ((  all1 {3}: {1}<={3}&{3}<={0} =>  {2}) & {4}))".format(all_var, v, f2, all_var2, f1)
+        return "(all1 {0}: ({1}<={0}&{0}<=max($) => ((all1 {3}: {1}<={3}&{3}<{0} =>  {2}) => ({4}))))".format(all_var, v, f2, all_var2, f1)
 
 
     def to_mona_s(self, v="0") -> str:
@@ -642,7 +642,7 @@ class LTLfWhile(LTLfBinaryOperator):
         rt = LTLfRelease([LTLfNot(self.formulas[1]), self.formulas[0]]).to_mona(v)
         f2p = self.formulas[1].to_mona_s(v=all_var2)
         f1p = self.formulas[0].to_mona_s(v=all_var)
-        rh = "(all1 {0}: {1}<={0}&{0}<=max($) => ((  all1 {3}: {1}<={3}&{3}<={0} =>  {2}) & {4}))".format(all_var, v, f2p, all_var2, f1p)
+        rh = "(all1 {0}: ({1}<={0}&{0}<=max($) =>((all1 {3}: {1}<={3}&{3}<{0} =>  {2})=>({4}))))".format(all_var, v, f2p, all_var2, f1p)
         return "({}) & ({})".format(rh,rt)
 
 
