@@ -508,13 +508,6 @@ class LTLfNext(LTLfUnaryOperator):
         else:
             return "(ex1 {0}: {0}=1 & {1})".format(ex_var, self.f.to_mona(ex_var))
 
-    # def to_ldlf(self):
-    #     """Convert the formula to LDLf."""
-    #     return LDLfDiamond(
-    #         RegExpPropositional(PLTrue()),
-    #         LDLfAnd([self.f.to_ldlf(), LDLfNot(LDLfEnd())]),
-    #     )
-
     def to_mona_s(self,v="0") -> str:
         ex_var = new_var(v)
         if v != "0":
@@ -632,17 +625,18 @@ class LTLfWhile(LTLfBinaryOperator):
         all_var2 = new_var(all_var)
         f2 = self.formulas[1].to_mona(v=all_var2)
         f1 = self.formulas[0].to_mona(v=all_var)
-        return "(all1 {0}: ({1}<={0}&{0}<=max($) => ((all1 {3}: {1}<={3}&{3}<{0} =>  {2}) => ({4}))))".format(all_var, v, f2, all_var2, f1)
+        return "(all1 {0}: ({1}<={0}&{0}<=max($) => ((all1 {3}: {1}<={3}&{3}<={0} =>  {2}) => ({4}))))".format(all_var, v, f2, all_var2, f1)
 
 
     def to_mona_s(self, v="0") -> str:
         """Return the MONA encoding of an LTLf While formula."""
         all_var = new_var(v)
         all_var2 = new_var(all_var)
-        rt = LTLfRelease([LTLfNot(self.formulas[1]), self.formulas[0]]).to_mona(v)
+        #rt = LTLfRelease([LTLfNot(self.formulas[1]), self.formulas[0]]).to_mona(v)
         f2p = self.formulas[1].to_mona_s(v=all_var2)
         f1p = self.formulas[0].to_mona_s(v=all_var)
-        rh = "(all1 {0}: ({1}<={0}&{0}<=max($) =>((all1 {3}: {1}<={3}&{3}<{0} =>  {2})=>({4}))))".format(all_var, v, f2p, all_var2, f1p)
+        rh = "(all1 {0}: ({1}<={0}&{0}<=max($) =>((all1 {3}: {1}<={3}&{3}<={0} =>  {2})=>({4}))))".format(all_var, v, f2p, all_var2, f1p)
+        rt = self.to_mona(v)
         return "({}) & ({})".format(rh,rt)
 
 

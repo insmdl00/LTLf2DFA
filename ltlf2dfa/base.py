@@ -210,17 +210,17 @@ class MonaPSE:
         v1 = set([v.upper() for v in self.f1.find_labels()])
         v2 = set([v.upper() for v in self.f2.find_labels()])
 #        if v1.issubset(v2) and v2.issubset(v1): # strong equivalence on the same signature
-        if len(v1) == 0 and len(v2) == 0:
-            monaOutput = "#{0} <-> {1} in THTf;\n{2};\n ~((({3}) <=> ({4})) & (({5}) <=>({6})));\n".format(
-                self.f1,
-                self.f2, 
-                self.header,
-                self.f1.to_mona("0"),
-                self.f2.to_mona("0"),
-                self.f1.to_mona_s("0"),
-                self.f2.to_mona_s("0")
-        )
-        else:
+        #if len(v1) == 0 and len(v2) == 0:
+        #    monaOutput = "#{0} <-> {1} in THTf;\n{2};\n ~((({3}) <=> ({4})) & (({5}) <=>({6})));\n".format(
+        #        self.f1,
+        #        self.f2, 
+        #        self.header,
+        #        self.f1.to_mona("0"),
+        #        self.f2.to_mona("0"),
+        #        self.f1.to_mona_s("0"),
+        #        self.f2.to_mona_s("0")
+        #)
+        #else:
 
 #               monaOutput = "#{0} <-> {1} in THTf;\n{2};\nvar2 {3};\n  ~(({4}) => ((({5}) <=> ({6}))));\n".format(
 #                    self.f1,
@@ -234,7 +234,7 @@ class MonaPSE:
 #                    self.f2.to_mona_s("0")
 #            )
 
-            monaOutput = "#{0} <-> {1} in THTf;\n{2};\nvar2 {3};\n  ~(({4}) => (({7}) <=>({8})));\n".format(
+        monaOutput = "#{0} <-> {1} in THTf;\n{2};\nvar2 {3};\n  ~({4} => (({7}) <=>({8})));\n".format(
                 self.f1,
                 self.f2, 
                 self.header,
